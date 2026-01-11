@@ -1,0 +1,46 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: jm-mariadb
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: jm-mariadb
+  template:
+    metadata:
+      labels:
+        app: jm-mariadb
+    spec:
+      containers:
+      - name: mariadb
+        image: mariadb:11
+        ports:
+        - containerPort: 3306
+        env:
+        - name: MYSQL_ROOT_PASSWORD
+          value: rootpass
+        - name: MYSQL_DATABASE
+          value: webapp
+        - name: MYSQL_USER
+          value: webuser
+        - name: MYSQL_PASSWORD
+          value: webpass
+        volumeMounts:
+        - name: mariadb-storage
+          mountPath: /var/lib/mysql
+      volumes:
+      - name: mariadb-storage
+        emptyDir: {}
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: jm-mariadb
+spec:
+  selector:
+    app: jm-mariadb
+  ports:
+  - port: 3306
+    targetPort: 3306
+  type: ClusterIP
