@@ -1,0 +1,35 @@
+version: "3.8"
+
+services:
+  mariadb:
+    image: mariadb:11
+    environment:
+      MYSQL_ROOT_PASSWORD: rootpass
+      MYSQL_DATABASE: webapp
+      MYSQL_USER: webuser
+      MYSQL_PASSWORD: webpass
+    volumes:
+      - mariadb_data:/var/lib/mysql
+
+  api:
+    build: ./api
+    environment:
+      DB_HOST: mariadb
+      DB_USER: webuser
+      DB_PASS: webpass
+      DB_NAME: webapp
+      DEFAULT_NAME: "JM"
+    depends_on:
+      - mariadb
+    ports:
+      - "8000:8000"
+
+  frontend:
+    build: ./frontend
+    depends_on:
+      - api
+    ports:
+      - "8080:80"
+
+volumes:
+  mariadb_data:
